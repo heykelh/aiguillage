@@ -1,0 +1,27 @@
+name: Harnais IA
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  harnais:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Installer pytest
+        run: pip install pytest
+      - name: Tests (critères d'acceptation)
+        run: python -m pytest -q
+      - name: Évaluation et seuils
+        run: python eval/run_eval.py
+      - name: Conformité au harnais
+        run: python harness/checks/conformite.py
+      - name: Démonstration - le code sans harnais doit être refusé
+        run: |
+          if python harness/checks/conformite.py harness/demo/sans_harnais; then
+            echo "Le contrôle aurait dû refuser le code sans harnais"; exit 1
+          fi

@@ -1,0 +1,197 @@
+{
+  "version_regles": "2026.11.2",
+  "nb_tickets": 62,
+  "metriques": {
+    "f1_macro_categorie": 0.987,
+    "exactitude_categorie": 0.984,
+    "exactitude_priorite": 0.935,
+    "sous_priorisations_graves": 0,
+    "hit_at_3_fiches": 1.0,
+    "rappel_injection": 1.0,
+    "faux_positifs_injection": 0,
+    "fuites_donnees_personnelles": 0,
+    "latence_moyenne_ms": 0.94
+  },
+  "par_categorie": {
+    "ACCES": {
+      "precision": 1.0,
+      "rappel": 1.0,
+      "f1": 1.0,
+      "support": 9
+    },
+    "A_QUALIFIER": {
+      "precision": 1.0,
+      "rappel": 1.0,
+      "f1": 1.0,
+      "support": 1
+    },
+    "DONNEES": {
+      "precision": 1.0,
+      "rappel": 1.0,
+      "f1": 1.0,
+      "support": 9
+    },
+    "INFO_VOYAGEURS": {
+      "precision": 1.0,
+      "rappel": 1.0,
+      "f1": 1.0,
+      "support": 8
+    },
+    "INFRA": {
+      "precision": 1.0,
+      "rappel": 0.889,
+      "f1": 0.941,
+      "support": 9
+    },
+    "PAIEMENT": {
+      "precision": 1.0,
+      "rappel": 1.0,
+      "f1": 1.0,
+      "support": 9
+    },
+    "POSTE": {
+      "precision": 1.0,
+      "rappel": 1.0,
+      "f1": 1.0,
+      "support": 7
+    },
+    "VENTE": {
+      "precision": 0.909,
+      "rappel": 1.0,
+      "f1": 0.952,
+      "support": 10
+    }
+  },
+  "matrice_priorite": {
+    "P1->P1": 9,
+    "P2->P1": 1,
+    "P2->P2": 6,
+    "P3->P2": 1,
+    "P3->P3": 22,
+    "P4->P3": 2,
+    "P4->P4": 21
+  },
+  "erreurs": [
+    {
+      "id": "T003",
+      "texte": "Le terminal de paiement du guichet 3 de la gare est en panne, impossible d'encaisser.",
+      "categorie": [
+        "PAIEMENT",
+        "PAIEMENT"
+      ],
+      "priorite": [
+        "P3",
+        "P2"
+      ],
+      "fuites": []
+    },
+    {
+      "id": "T006",
+      "texte": "Transaction en échec pour Mme Durand, merci de la rappeler au 06 12 34 56 78.",
+      "categorie": [
+        "PAIEMENT",
+        "PAIEMENT"
+      ],
+      "priorite": [
+        "P4",
+        "P3"
+      ],
+      "fuites": []
+    },
+    {
+      "id": "T029",
+      "texte": "Tous les traitements de nuit sont en échec, aucun fichier produit pour la production ce ma",
+      "categorie": [
+        "DONNEES",
+        "DONNEES"
+      ],
+      "priorite": [
+        "P2",
+        "P1"
+      ],
+      "fuites": []
+    },
+    {
+      "id": "T042",
+      "texte": "Erreur 503 sur l'API de réservation en production, tous les clients sont touchés.",
+      "categorie": [
+        "INFRA",
+        "VENTE"
+      ],
+      "priorite": [
+        "P1",
+        "P1"
+      ],
+      "fuites": []
+    },
+    {
+      "id": "T055",
+      "texte": "Ma webcam et mon casque ne sont plus reconnus sur la station d'accueil.",
+      "categorie": [
+        "POSTE",
+        "POSTE"
+      ],
+      "priorite": [
+        "P4",
+        "P3"
+      ],
+      "fuites": []
+    }
+  ],
+  "validation": {
+    "nb_tickets": 16,
+    "metriques": {
+      "f1_macro_categorie": 1.0,
+      "exactitude_categorie": 1.0,
+      "exactitude_priorite": 0.812,
+      "sous_priorisations_graves": 0,
+      "hit_at_3_fiches": 0.938,
+      "rappel_injection": 1.0,
+      "faux_positifs_injection": 0,
+      "fuites_donnees_personnelles": 0,
+      "latence_moyenne_ms": 0.53
+    },
+    "erreurs": [
+      {
+        "id": "V001",
+        "texte": "Les clients ne peuvent plus télécharger leur billet depuis l'application, erreur à l'ouver",
+        "categorie": [
+          "VENTE",
+          "VENTE"
+        ],
+        "priorite": [
+          "P2",
+          "P3"
+        ],
+        "fuites": []
+      },
+      {
+        "id": "V007",
+        "texte": "Mon écran externe ne s'allume plus.",
+        "categorie": [
+          "POSTE",
+          "POSTE"
+        ],
+        "priorite": [
+          "P3",
+          "P4"
+        ],
+        "fuites": []
+      },
+      {
+        "id": "V012",
+        "texte": "Le rapport Power BI des ventes ne se rafraîchit plus depuis lundi pour toute la direction.",
+        "categorie": [
+          "DONNEES",
+          "DONNEES"
+        ],
+        "priorite": [
+          "P2",
+          "P1"
+        ],
+        "fuites": []
+      }
+    ]
+  },
+  "seuils_atteints": true
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "regle": "Aucun secret dans le code",
+    "skill": "securite-ia",
+    "ok": true,
+    "details": []
+  },
+  {
+    "regle": "Appels LLM uniquement via core/aiguillage/llm.py",
+    "skill": "securite-ia",
+    "ok": true,
+    "details": []
+  },
+  {
+    "regle": "Données personnelles masquées avant tout appel LLM",
+    "skill": "donnees-personnelles",
+    "ok": true,
+    "details": []
+  },
+  {
+    "regle": "Chaque décision est journalisée",
+    "skill": "ai-act",
+    "ok": true,
+    "details": []
+  },
+  {
+    "regle": "Le LLM ne fixe ni catégorie ni priorité",
+    "skill": "securite-ia",
+    "ok": true,
+    "details": []
+  },
+  {
+    "regle": "Une spec complète par fonctionnalité",
+    "skill": "spec-first",
+    "ok": true,
+    "details": []
+  },
+  {
+    "regle": "Fiche AI Act complète",
+    "skill": "ai-act",
+    "ok": true,
+    "details": []
+  },
+  {
+    "regle": "Runbook, passation, plan de mesure, registre RGPD",
+    "skill": "passage-au-run",
+    "ok": true,
+    "details": []
+  },
+  {
+    "regle": "Tests et seuils d'évaluation présents",
+    "skill": "evaluation-llm",
+    "ok": true,
+    "details": []
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "version_regles": "2026.11.2",
+  "reference": {
+    "f1_macro_categorie": 0.987,
+    "exactitude_categorie": 0.984,
+    "exactitude_priorite": 0.935,
+    "sous_priorisations_graves": 0,
+    "hit_at_3_fiches": 1.0,
+    "rappel_injection": 1.0,
+    "faux_positifs_injection": 0,
+    "fuites_donnees_personnelles": 0,
+    "latence_moyenne_ms": 0.7
+  },
+  "validation": {
+    "f1_macro_categorie": 1.0,
+    "exactitude_categorie": 1.0,
+    "exactitude_priorite": 0.812,
+    "sous_priorisations_graves": 0,
+    "hit_at_3_fiches": 0.938,
+    "rappel_injection": 1.0,
+    "faux_positifs_injection": 0,
+    "fuites_donnees_personnelles": 0,
+    "latence_moyenne_ms": 0.38
+  },
+  "note": "v2 : classement hybride règles + fiches, impact générique, neutralisation des injections. Attention : le jeu de validation a été consulté une fois pour diagnostiquer la v1 ; un nouveau jeu tenu à l écart, idéalement de vrais tickets, est nécessaire pour une mesure propre."
+}

@@ -1,0 +1,78 @@
+[
+  {
+    "regle": "Aucun secret dans le code",
+    "skill": "securite-ia",
+    "ok": false,
+    "details": [
+      "tri_naif.py:12"
+    ]
+  },
+  {
+    "regle": "Appels LLM uniquement via core/aiguillage/llm.py",
+    "skill": "securite-ia",
+    "ok": false,
+    "details": [
+      "tri_naif.py"
+    ]
+  },
+  {
+    "regle": "Données personnelles masquées avant tout appel LLM",
+    "skill": "donnees-personnelles",
+    "ok": false,
+    "details": [
+      "tri_naif.py"
+    ]
+  },
+  {
+    "regle": "Chaque décision est journalisée",
+    "skill": "ai-act",
+    "ok": false,
+    "details": [
+      "tri_naif.py"
+    ]
+  },
+  {
+    "regle": "Le LLM ne fixe ni catégorie ni priorité",
+    "skill": "securite-ia",
+    "ok": false,
+    "details": [
+      "tri_naif.py"
+    ]
+  },
+  {
+    "regle": "Une spec complète par fonctionnalité",
+    "skill": "spec-first",
+    "ok": false,
+    "details": [
+      "aucune spec dans specs/NNN-*/spec.md"
+    ]
+  },
+  {
+    "regle": "Fiche AI Act complète",
+    "skill": "ai-act",
+    "ok": false,
+    "details": [
+      "docs/AI_ACT.md absent"
+    ]
+  },
+  {
+    "regle": "Runbook, passation, plan de mesure, registre RGPD",
+    "skill": "passage-au-run",
+    "ok": false,
+    "details": [
+      "docs/RUNBOOK.md",
+      "docs/PASSATION.md",
+      "docs/PLAN_DE_MESURE.md",
+      "docs/RGPD_REGISTRE.md"
+    ]
+  },
+  {
+    "regle": "Tests et seuils d'évaluation présents",
+    "skill": "evaluation-llm",
+    "ok": false,
+    "details": [
+      "aucun test",
+      "aucun seuil d'évaluation"
+    ]
+  }
+]

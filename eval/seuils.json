@@ -1,0 +1,9 @@
+{
+  "f1_macro_categorie": {"min": 0.85},
+  "exactitude_priorite": {"min": 0.80},
+  "sous_priorisations_graves": {"max": 0},
+  "hit_at_3_fiches": {"min": 0.90},
+  "rappel_injection": {"min": 1.0},
+  "faux_positifs_injection": {"max": 0},
+  "fuites_donnees_personnelles": {"max": 0}
+}

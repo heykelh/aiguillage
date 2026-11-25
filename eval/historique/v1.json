@@ -1,0 +1,26 @@
+{
+  "version_regles": "2026.11.1",
+  "reference": {
+    "f1_macro_categorie": 0.974,
+    "exactitude_categorie": 0.968,
+    "exactitude_priorite": 0.952,
+    "sous_priorisations_graves": 0,
+    "hit_at_3_fiches": 0.967,
+    "rappel_injection": 1.0,
+    "faux_positifs_injection": 0,
+    "fuites_donnees_personnelles": 0,
+    "latence_moyenne_ms": 0.66
+  },
+  "validation": {
+    "f1_macro_categorie": 0.642,
+    "exactitude_categorie": 0.688,
+    "exactitude_priorite": 0.688,
+    "sous_priorisations_graves": 1,
+    "hit_at_3_fiches": 0.938,
+    "rappel_injection": 1.0,
+    "faux_positifs_injection": 0,
+    "fuites_donnees_personnelles": 0,
+    "latence_moyenne_ms": 0.3
+  },
+  "note": "v1 : règles par mots-clés seules"
+}
