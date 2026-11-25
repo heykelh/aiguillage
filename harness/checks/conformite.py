@@ -52,20 +52,20 @@ def controler(racine: Path) -> list[Resultat]:
     resultats: list[Resultat] = []
 
     # 1. Secrets
-    fuites = [f"{rel(p)}:{n}" for p in tout for n, l in enumerate(p.read_text(errors="ignore").splitlines(), 1)
+    fuites = [f"{rel(p)}:{n}" for p in tout for n, l in enumerate(p.read_text(encoding="utf-8", errors="ignore").splitlines(), 1)
               if any(m.search(l) for m in MOTIFS_SECRETS)]
     resultats.append(Resultat("Aucun secret dans le code", "securite-ia", not fuites, fuites))
 
     # 2. Point d'entrée LLM unique
-    appels = [rel(p) for p in code if APPELS_LLM.search(p.read_text(errors="ignore"))]
+    appels = [rel(p) for p in code if APPELS_LLM.search(p.read_text(encoding="utf-8", errors="ignore"))]
     autorises = {"core/aiguillage/llm.py", "harness/checks/conformite.py"}  # le contrôleur contient les motifs
     hors_passerelle = [a for a in appels if a not in autorises]
     resultats.append(Resultat("Appels LLM uniquement via core/aiguillage/llm.py", "securite-ia", not hors_passerelle, hors_passerelle))
 
     # 3. Masquage des données personnelles avant le LLM
-    utilisateurs_llm = [p for p in code if "rediger_resume(" in p.read_text() and not p.name == "llm.py"] or \
-                       [p for p in code if APPELS_LLM.search(p.read_text(errors="ignore"))]
-    sans_masquage = [rel(p) for p in utilisateurs_llm if "masquer(" not in p.read_text() and p.name != "llm.py"]
+    utilisateurs_llm = [p for p in code if "rediger_resume(" in p.read_text(encoding="utf-8") and not p.name == "llm.py"] or \
+                       [p for p in code if APPELS_LLM.search(p.read_text(encoding="utf-8", errors="ignore"))]
+    sans_masquage = [rel(p) for p in utilisateurs_llm if "masquer(" not in p.read_text(encoding="utf-8") and p.name != "llm.py"]
     if not utilisateurs_llm:
         sans_masquage = []
     if any(rel(p) == "core/aiguillage/llm.py" for p in utilisateurs_llm) and not (racine / "core/aiguillage/triage.py").exists():
@@ -73,23 +73,23 @@ def controler(racine: Path) -> list[Resultat]:
     resultats.append(Resultat("Données personnelles masquées avant tout appel LLM", "donnees-personnelles", not sans_masquage, sans_masquage))
 
     # 4. Journal d'audit
-    sans_audit = [rel(p) for p in utilisateurs_llm if p.name != "llm.py" and "journaliser" not in p.read_text()]
+    sans_audit = [rel(p) for p in utilisateurs_llm if p.name != "llm.py" and "journaliser" not in p.read_text(encoding="utf-8")]
     resultats.append(Resultat("Chaque décision est journalisée", "ai-act", not sans_audit, sans_audit))
 
     # 5. Le LLM ne décide pas
-    decide = [rel(p) for p in code if re.search(r"(priorit\w*|categor\w*)\s*=\s*\w*(reponse|response|completion|choices)", p.read_text(errors="ignore"), re.I)]
+    decide = [rel(p) for p in code if re.search(r"(priorit\w*|categor\w*)\s*=\s*\w*(reponse|response|completion|choices)", p.read_text(encoding="utf-8", errors="ignore"), re.I)]
     resultats.append(Resultat("Le LLM ne fixe ni catégorie ni priorité", "securite-ia", not decide, decide))
 
     # 6. Spec avant code
     specs = sorted((racine / "specs").glob("[0-9][0-9][0-9]-*/spec.md")) if (racine / "specs").exists() else []
-    manquantes = [f"{rel(s)} : {sec}" for s in specs for sec in SECTIONS_SPEC if sec not in s.read_text()]
+    manquantes = [f"{rel(s)} : {sec}" for s in specs for sec in SECTIONS_SPEC if sec not in s.read_text(encoding="utf-8")]
     if not specs:
         manquantes = ["aucune spec dans specs/NNN-*/spec.md"]
     resultats.append(Resultat("Une spec complète par fonctionnalité", "spec-first", not manquantes, manquantes))
 
     # 7. Fiche AI Act
     fiche = racine / "docs" / "AI_ACT.md"
-    absents = ["docs/AI_ACT.md absent"] if not fiche.exists() else [s for s in SECTIONS_AI_ACT if s not in fiche.read_text()]
+    absents = ["docs/AI_ACT.md absent"] if not fiche.exists() else [s for s in SECTIONS_AI_ACT if s not in fiche.read_text(encoding="utf-8")]
     resultats.append(Resultat("Fiche AI Act complète", "ai-act", not absents, absents))
 
     # 8. Prêt pour le run
@@ -119,6 +119,8 @@ def afficher(resultats: list[Resultat], cible: str) -> None:
 
 
 if __name__ == "__main__":
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")  # ✔ et ✘ lisibles aussi sous Windows
     cible = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else RACINE_DEPOT
     if cible != RACINE_DEPOT:
         EXCLUS.discard("harness/demo")

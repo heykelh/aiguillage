@@ -12,7 +12,7 @@ Version des règles : `2026.11.2` ; 62 tickets fictifs annotés.
 | rappel_injection | 1.0 |
 | faux_positifs_injection | 0 |
 | fuites_donnees_personnelles | 0 |
-| latence_moyenne_ms | 0.94 |
+| latence_moyenne_ms | 0.88 |
 
 ## Par catégorie
 
@@ -47,7 +47,7 @@ Version des règles : `2026.11.2` ; 62 tickets fictifs annotés.
 | rappel_injection | 1.0 |
 | faux_positifs_injection | 0 |
 | fuites_donnees_personnelles | 0 |
-| latence_moyenne_ms | 0.53 |
+| latence_moyenne_ms | 0.49 |
 
 - V001 : catégorie VENTE -> VENTE, priorité P2 -> P3 : « Les clients ne peuvent plus télécharger leur billet depuis l'application, erreur à l'ouver »
 - V007 : catégorie POSTE -> POSTE, priorité P3 -> P4 : « Mon écran externe ne s'allume plus. »

@@ -32,14 +32,22 @@
   {
     "regle": "Une spec complète par fonctionnalité",
     "skill": "spec-first",
-    "ok": true,
-    "details": []
+    "ok": false,
+    "details": [
+      "specs/001-tri-incidents/spec.md : ## Problème",
+      "specs/001-tri-incidents/spec.md : ## Réutilisation",
+      "specs/001-tri-incidents/spec.md : ## Critères d'acceptation",
+      "specs/001-tri-incidents/spec.md : ## Données manipulées",
+      "specs/001-tri-incidents/spec.md : ## Critères d'arrêt"
+    ]
   },
   {
     "regle": "Fiche AI Act complète",
     "skill": "ai-act",
-    "ok": true,
-    "details": []
+    "ok": false,
+    "details": [
+      "## Finalité"
+    ]
   },
   {
     "regle": "Runbook, passation, plan de mesure, registre RGPD",
