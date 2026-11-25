@@ -65,3 +65,21 @@ def test_raison_explicite_sans_cle(monkeypatch, tmp_path):
     r = trier("Mon imprimante est hors ligne")
     assert r["resume"]["erreur"] == "cle_absente"
     assert llm.etat()["cle_configuree"] is False
+
+
+def test_erreur_http_detaillee_et_identifiant_envoye(monkeypatch, tmp_path):
+    import io
+
+    monkeypatch.setattr("aiguillage.audit.CHEMIN", tmp_path / "audit.jsonl")
+    monkeypatch.setenv("GROQ_API_KEY", "cle-de-test")
+    vus = {}
+
+    def refus(requete, timeout=None):
+        vus["ua"] = requete.get_header("User-agent")
+        raise urllib.error.HTTPError(requete.full_url, 403, "Forbidden", {}, io.BytesIO(b"error code: 1010"))
+
+    monkeypatch.setattr("urllib.request.urlopen", refus)
+    r = trier("Mon imprimante est hors ligne")
+    assert r["resume"]["source"] == "deterministe"
+    assert r["resume"]["erreur"] == "HTTP 403 : error code: 1010"
+    assert vus["ua"].startswith("aiguillage/")

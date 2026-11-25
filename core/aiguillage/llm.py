@@ -69,7 +69,15 @@ def rediger_resume(texte_masque: str, autoriser_llm: bool = True) -> Redaction:
     ]
     corps = json.dumps({"model": MODELE, "messages": messages, "temperature": 0, "max_tokens": 120}).encode()
     requete = urllib.request.Request(
-        URL, data=corps, headers={"Authorization": f"Bearer {cle}", "Content-Type": "application/json"}
+        URL,
+        data=corps,
+        headers={
+            "Authorization": f"Bearer {cle}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            # L'identifiant par défaut « Python-urllib » est bloqué par certains pare-feu applicatifs (erreur 403).
+            "User-Agent": "aiguillage/1.0 (+https://github.com/heykelh/aiguillage)",
+        },
     )
     try:
         with urllib.request.urlopen(requete, timeout=DELAI_S) as reponse:
@@ -80,8 +88,13 @@ def rediger_resume(texte_masque: str, autoriser_llm: bool = True) -> Redaction:
         js = usage.get("completion_tokens") or estimer_jetons(texte)
         return Redaction(texte, "llm", MODELE, je, js, cout(je, js))
     except urllib.error.HTTPError as exc:  # le fournisseur a répondu, mais en erreur (clé, modèle, quota)
+        try:
+            detail = exc.read().decode("utf-8", "ignore").replace("\n", " ")[:160]
+        except Exception:  # noqa: BLE001 (le diagnostic ne doit jamais faire échouer le tri)
+            detail = ""
         return Redaction(
-            resume_deterministe(texte_masque), "deterministe", "aucun", 0, 0, 0.0, erreur=f"HTTP {exc.code}"
+            resume_deterministe(texte_masque), "deterministe", "aucun", 0, 0, 0.0,
+            erreur=f"HTTP {exc.code}" + (f" : {detail}" if detail else ""),
         )
     except (urllib.error.URLError, TimeoutError, KeyError, ValueError) as exc:
         return Redaction(
