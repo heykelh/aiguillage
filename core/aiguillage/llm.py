@@ -57,9 +57,11 @@ def resume_deterministe(texte_masque: str) -> str:
 
 def rediger_resume(texte_masque: str, autoriser_llm: bool = True) -> Redaction:
     """Rédige un résumé du ticket déjà masqué. Ne reçoit JAMAIS de texte brut."""
-    cle = os.environ.get("GROQ_API_KEY")
-    if not (cle and autoriser_llm):
-        return Redaction(resume_deterministe(texte_masque), "deterministe", "aucun", 0, 0, 0.0)
+    cle = os.environ.get("GROQ_API_KEY", "").strip()
+    if not cle:
+        return Redaction(resume_deterministe(texte_masque), "deterministe", "aucun", 0, 0, 0.0, erreur="cle_absente")
+    if not autoriser_llm:
+        return Redaction(resume_deterministe(texte_masque), "deterministe", "aucun", 0, 0, 0.0, erreur="non_autorise")
 
     messages = [
         {"role": "system", "content": PROMPT_SYSTEME},
@@ -77,7 +79,16 @@ def rediger_resume(texte_masque: str, autoriser_llm: bool = True) -> Redaction:
         je = usage.get("prompt_tokens") or estimer_jetons(PROMPT_SYSTEME + texte_masque)
         js = usage.get("completion_tokens") or estimer_jetons(texte)
         return Redaction(texte, "llm", MODELE, je, js, cout(je, js))
+    except urllib.error.HTTPError as exc:  # le fournisseur a répondu, mais en erreur (clé, modèle, quota)
+        return Redaction(
+            resume_deterministe(texte_masque), "deterministe", "aucun", 0, 0, 0.0, erreur=f"HTTP {exc.code}"
+        )
     except (urllib.error.URLError, TimeoutError, KeyError, ValueError) as exc:
         return Redaction(
             resume_deterministe(texte_masque), "deterministe", "aucun", 0, 0, 0.0, erreur=type(exc).__name__
         )
+
+
+def etat() -> dict:
+    """État de la configuration LLM, sans jamais exposer la clé."""
+    return {"cle_configuree": bool(os.environ.get("GROQ_API_KEY", "").strip()), "modele": MODELE, "fournisseur": URL.split("/")[2]}

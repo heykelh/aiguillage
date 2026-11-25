@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "core"))
 
-from aiguillage import trier  # noqa: E402
+from aiguillage import llm, trier  # noqa: E402
 
 TAILLE_MAX = 5000
 
@@ -35,4 +35,4 @@ class handler(BaseHTTPRequestHandler):  # noqa: N801 (nom imposé par Vercel)
         self._repondre(200, trier(texte[:TAILLE_MAX]))
 
     def do_GET(self) -> None:  # noqa: N802
-        self._repondre(200, {"service": "aiguillage", "usage": "POST {\"ticket\": \"...\"}"})
+        self._repondre(200, {"service": "aiguillage", "usage": "POST {\"ticket\": \"...\"}", "llm": llm.etat()})

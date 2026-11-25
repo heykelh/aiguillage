@@ -57,3 +57,11 @@ def test_resume_llm_repasse_au_masquage(monkeypatch, tmp_path):
 
 def test_cout_estime():
     assert llm.cout(1_000_000, 0) == llm.PRIX_ENTREE
+
+
+def test_raison_explicite_sans_cle(monkeypatch, tmp_path):
+    monkeypatch.setattr("aiguillage.audit.CHEMIN", tmp_path / "audit.jsonl")
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    r = trier("Mon imprimante est hors ligne")
+    assert r["resume"]["erreur"] == "cle_absente"
+    assert llm.etat()["cle_configuree"] is False

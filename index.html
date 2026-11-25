@@ -259,6 +259,24 @@ body:not(.revision) .memo-fiche button{display:none}
   body.impression-memo .memo-grille{grid-template-columns:1fr 1fr}
 }
 
+/* Mobile */
+#carte-mobile{display:none}
+@media(max-width:760px){
+  section{padding:72px 0}
+  .wrap{padding:0 20px}
+  .chapo{font-size:18px}
+  #bienvenue{flex-direction:column;align-items:stretch;text-align:center;gap:10px;bottom:12px;padding:14px}
+  #bienvenue .btn{justify-content:center}
+  .carte-svg-boite{display:none}
+  #carte-mobile{display:block}
+  .cm-voie{margin-bottom:18px}
+  .cm-voie h4{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--lagon);font-weight:500;margin:0 0 8px}
+  .cm-puces{display:flex;flex-wrap:wrap;gap:8px}
+  .cm-puces button{background:var(--surface);border:1px solid var(--trait);color:var(--fog);border-radius:12px;padding:9px 12px;font-size:14.5px;cursor:pointer}
+  .cm-puces button.vu{border-color:rgba(0,255,213,.55)}
+  .cm-puces button.choisi{border-color:var(--lagon);background:#0f2b2b;box-shadow:0 0 12px rgba(0,255,213,.4)}
+  .mesure{grid-template-columns:1fr 60px}
+}
 footer{padding:50px 0;border-top:1px solid var(--trait);color:var(--gris);font-size:15px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#rails .trace{stroke-dashoffset:0}#rails .traverse,#rails .train{opacity:1}html{scroll-behavior:auto}}
 </style>
@@ -524,6 +542,7 @@ footer{padding:50px 0;border-top:1px solid var(--trait);color:var(--gris);font-s
       </div>
     </aside>
   </div>
+  <div id="carte-mobile" aria-label="Carte de l'IA, version mobile"></div>
 
   <div class="memo-tete">
     <h3 style="font-size:24px">Toutes les fiches</h3>
@@ -801,7 +820,7 @@ async function trier(){
     if(!r.ok) throw new Error((await r.json()).erreur||r.status);
     const d=await r.json(); derniere=d;
     await animer(d.securite.suspect); afficher(d);
-    $("#etat").textContent=`Trié en moins d'une seconde · règles ${d.versions.regles} · LLM : ${d.versions.modele==="aucun"?"non utilisé":d.versions.modele} · coût : ${d.cout_estime_usd} $`;
+    $("#etat").textContent=`Trié en moins d'une seconde · règles ${d.versions.regles} · LLM : ${d.versions.modele==="aucun"?"non utilisé"+({cle_absente:" (aucune clé configurée)",non_autorise:" (ticket suspect, envoi bloqué)"}[d.resume.erreur]||(d.resume.erreur?" ("+d.resume.erreur+")":"")):d.versions.modele} · coût : ${d.cout_estime_usd} $`;
     $("#resultat").scrollIntoView({behavior:"smooth",block:"start"});
   }catch(e){$("#etat").textContent="Le service de tri ne répond pas ici. Ouvrez la version en ligne du site. ("+e.message+")";}
 }
@@ -868,7 +887,7 @@ Promise.all(["eval/resultats.json","eval/conformite_demo.json","eval/conformite.
 
 /* ---------- Visite guidée ---------- */
 const VISITE=[
-  {cible:"#accueil",titre:"Bienvenue",texte:"Ce site présente deux choses : des règles pour que l'IA produise des outils sûrs (le « harnais »), et un premier outil construit avec ces règles. Pas besoin d'être technicien : chaque terme souligné en pointillés s'explique au survol.",action:"Cliquez sur « Suivant » pour continuer."},
+  {cible:"#accueil",titre:"Bienvenue",texte:"Ce site présente deux choses : des règles pour que l'IA produise des outils sûrs (le « harnais »), et un premier outil construit avec ces règles. Pas besoin d'être technicien : chaque terme souligné en pointillés s'explique au survol, ou d'un toucher sur mobile.",action:"Cliquez sur « Suivant » pour continuer."},
   {cible:"#comprendre",titre:"L'idée en une minute",texte:"Les équipes veulent créer leurs propres outils avec l'IA. Le risque : des outils rapides mais dangereux. Le harnais permet d'aller vite sans perdre le contrôle.",action:"Les 6 cartes du bas sont le sommaire du site."},
   {cible:"#demo",titre:"Essayez l'outil",texte:"Voici l'assistant qui trie les incidents informatiques. Il lit le message, cache les données personnelles, puis propose une catégorie et une priorité en expliquant pourquoi.",action:"Essayez : cliquez sur l'exemple « Données personnelles », puis sur « Tentative de piratage ».",apres:()=>{ if(!$("#ticket").value){ $("#ticket").value=EXEMPLES[0][2]; } }},
   {cible:"#harnais",titre:"Le harnais en action",texte:"La même demande donnée à une IA, sans puis avec les règles. Sans règles : 0 contrôle sur 9 réussi (mot de passe dans le code, données envoyées en clair, IA qui décide seule). Avec : 9 sur 9.",action:"Regardez les croix rouges à gauche : chacune est un risque réel en entreprise."},
@@ -1271,6 +1290,9 @@ Object.entries(CONCEPTS).forEach(([id,k],i)=>{
   g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();arreter();$("#narration").classList.add("hidden");choisir(id);}});
   noeudsSvg[id]=g;
 });
+$("#carte-mobile").innerHTML=VOIES.map((t,v)=>`<div class="cm-voie"><h4>${esc(t)}</h4><div class="cm-puces">${
+  Object.entries(CONCEPTS).filter(([,k])=>k.v===v).sort((a,b)=>a[1].c-b[1].c).map(([id,k])=>`<button data-id="${id}">${esc(k.lab)}</button>`).join("")}</div></div>`).join("");
+$$("#carte-mobile button").forEach(b=>b.onclick=()=>{arreter();$("#narration").classList.add("hidden");choisir(b.dataset.id);});
 const paquet=el("circle",{class:"paquet",r:7,cx:-50,cy:-50});
 new IntersectionObserver((es,o)=>es.forEach(e=>{if(e.isIntersecting){svgC.classList.add("visible");o.disconnect();}}),{threshold:.2}).observe(svgC);
 
@@ -1278,6 +1300,7 @@ function choisir(id){
   const k=CONCEPTS[id];
   Object.values(noeudsSvg).forEach(n=>n.classList.remove("choisi"));
   noeudsSvg[id].classList.add("choisi","vu");
+  $$("#carte-mobile button").forEach(b=>{b.classList.toggle("choisi",b.dataset.id===id); if(b.dataset.id===id) b.classList.add("vu");});
   $("#fc-voie").textContent=VOIES[k.v];
   $("#fc-titre").textContent=k.titre; $("#fc-def").textContent=k.def;
   $("#fc-ana").textContent=k.ana; $("#fc-ex").textContent=k.ex; $("#fc-ici").textContent=k.ici;
@@ -1288,6 +1311,8 @@ function choisir(id){
 }
 function placerFiche(id){
   const pop=$("#pop"), boite=$(".carte-svg-boite");
+  if(window.innerWidth<=900 && pop.parentElement!==document.body) document.body.appendChild(pop);
+  if(window.innerWidth>900 && pop.parentElement!==boite) boite.appendChild(pop);
   pop.classList.remove("hidden"); pop.scrollTop=0;
   if(window.innerWidth<=900) return;
   const rb=boite.getBoundingClientRect(), rn=noeudsSvg[id].getBoundingClientRect();
@@ -1300,7 +1325,7 @@ function placerFiche(id){
   pop.style.left=gauche+"px"; pop.style.top=haut+"px";
   if(rb.top<60||rb.bottom>window.innerHeight) boite.scrollIntoView({behavior:"smooth",block:"center"});
 }
-function fermerFiche(){ $("#pop").classList.add("hidden"); Object.values(noeudsSvg).forEach(n=>n.classList.remove("choisi")); }
+function fermerFiche(){ $("#pop").classList.add("hidden"); Object.values(noeudsSvg).forEach(n=>n.classList.remove("choisi")); $$("#carte-mobile button").forEach(b=>b.classList.remove("choisi")); }
 $("#pop-fermer").onclick=()=>{arreter();fermerFiche();};
 document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("#pop").classList.contains("hidden")){arreter();fermerFiche();} });
 window.addEventListener("resize",()=>{ const sel=Object.keys(noeudsSvg).find(k=>noeudsSvg[k].classList.contains("choisi")); if(sel && !$("#pop").classList.contains("hidden")) placerFiche(sel); });
@@ -1314,6 +1339,7 @@ function chargerScenario(i){
   sc=i; pas=-1; precedent=null;
   $$("#scenarios button").forEach(b=>b.classList.toggle("actif",+b.dataset.i===i));
   Object.values(noeudsSvg).forEach(n=>n.classList.remove("vu","choisi"));
+  $$("#carte-mobile button").forEach(b=>b.classList.remove("vu","choisi"));
   Object.values(cheminAretes).forEach(p=>p.classList.remove("vive"));
   paquet.setAttribute("cx",-50);
 }
