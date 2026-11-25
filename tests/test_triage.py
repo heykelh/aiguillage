@@ -83,3 +83,34 @@ def test_erreur_http_detaillee_et_identifiant_envoye(monkeypatch, tmp_path):
     assert r["resume"]["source"] == "deterministe"
     assert r["resume"]["erreur"] == "HTTP 403 : error code: 1010"
     assert vus["ua"].startswith("aiguillage/")
+
+
+def test_bascule_sur_le_modele_de_secours(monkeypatch, tmp_path):
+    import io
+    import json as _json
+
+    monkeypatch.setattr("aiguillage.audit.CHEMIN", tmp_path / "audit.jsonl")
+    monkeypatch.setenv("GROQ_API_KEY", "cle-de-test")
+    appels = []
+
+    class Reponse(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def fournisseur(requete, timeout=None):
+        modele = _json.loads(requete.data)["model"]
+        appels.append(modele)
+        if modele == llm.MODELE:
+            corps = b'{"error":{"message":"The model does not exist","code":"model_not_found"}}'
+            raise urllib.error.HTTPError(requete.full_url, 404, "Not Found", {}, io.BytesIO(corps))
+        contenu = {"choices": [{"message": {"content": "Imprimante hors ligne."}}], "usage": {"prompt_tokens": 50, "completion_tokens": 5}}
+        return Reponse(_json.dumps(contenu).encode())
+
+    monkeypatch.setattr("urllib.request.urlopen", fournisseur)
+    r = trier("Mon imprimante est hors ligne")
+    assert appels == [llm.MODELE, llm.SECOURS[0]]
+    assert r["resume"]["source"] == "llm"
+    assert r["versions"]["modele"] == llm.SECOURS[0]
