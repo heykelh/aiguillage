@@ -610,7 +610,7 @@ const G = [
  ["tool-use","Appel d'outils (tool use)","IA et LLM","Capacité d'un LLM à déclencher une fonction externe (recherche, calcul, base de données) au lieu de tout inventer."],
  ["few-shot","Few-shot","IA et LLM","Donner quelques exemples dans le prompt pour montrer au LLM la réponse attendue."],
  ["llm-juge","LLM-as-judge","IA et LLM","Utiliser un LLM pour noter les réponses d'un autre LLM. C'est pratique, mais il faut le comparer à des notes humaines avant de lui faire confiance."],
- ["fournisseur","Fournisseur LLM / API","IA et LLM","Entreprise qui donne accès à un LLM via Internet, facturé à l'usage.","Par défaut Groq (modèle Llama), interchangeable par simple configuration."],
+ ["fournisseur","Fournisseur LLM / API","IA et LLM","Entreprise qui donne accès à un LLM via Internet, facturé à l'usage.","Par défaut Groq (modèle gpt-oss-20b), interchangeable par simple configuration."],
  ["deterministe","Déterministe","IA et LLM","Qui donne toujours le même résultat pour la même entrée. C'est l'inverse d'un LLM, qui peut varier.","Catégorie et priorité sont calculées de façon déterministe : reproductibles et vérifiables."],
  ["mode-degrade","Mode dégradé","IA et LLM","Fonctionnement réduit mais utile quand un composant est en panne.","Sans LLM, l'outil trie quand même : seul le résumé devient plus simple."],
  // Harnais
@@ -1008,7 +1008,7 @@ const CONCEPTS = {
     def:"Le modèle génère la réponse jeton par jeton à partir du contexte. Il est probabiliste : la même question peut donner des réponses légèrement différentes.",
     ana:"Un rédacteur très cultivé et très rapide, mais qui ne vérifie rien de lui-même.",
     ex:"Llama, Mistral, GPT, Claude, Gemini.",
-    ici:"Llama 3.1 8B via Groq, uniquement pour rédiger le résumé, et remplaçable par configuration.",
+    ici:"gpt-oss-20b via Groq (modèle ouvert), uniquement pour rédiger le résumé, et remplaçable par configuration.",
     q:"Pourquoi ne pas laisser le LLM décider de la priorité ?",
     rep:"Une décision qui a un impact doit être reproductible, explicable et non manipulable. Des règles testées remplissent ces conditions. Le LLM apporte la souplesse du langage là où une erreur coûte peu : c'est le principe « le moteur calcule, le LLM rédige »."},
   structured:{v:1,c:5,lab:"Sortie structurée",titre:"Sortie structurée",
@@ -1136,7 +1136,7 @@ const CONCEPTS = {
     def:"Choisir le bon modèle pour chaque tâche : un petit et rapide pour classer ou résumer, un gros pour raisonner. Le routage envoie automatiquement chaque requête vers le modèle adapté.",
     ana:"On n'envoie pas le directeur technique réparer une imprimante.",
     ex:"Petit modèle pour 90 % des demandes simples, grand modèle pour les 10 % complexes.",
-    ici:"Un petit modèle (8B) suffit pour un résumé de 2 phrases. Il se change par variable d'environnement.",
+    ici:"Un modèle compact (gpt-oss-20b) suffit pour un résumé de 2 phrases, avec bascule automatique vers un modèle de secours. Il se change par variable d'environnement.",
     q:"Comment choisir le modèle d'un cas d'usage ?",
     rep:"On part des contraintes (données sensibles, hébergement, latence, budget), on compare deux ou trois modèles sur un jeu d'évaluation, et on prend le plus petit qui atteint les seuils. Le modèle doit rester interchangeable."},
   // Voie 5 : qualité et production

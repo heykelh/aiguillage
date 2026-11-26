@@ -11,9 +11,9 @@ import urllib.request
 from dataclasses import dataclass
 
 URL = os.environ.get("LLM_URL", "https://api.groq.com/openai/v1/chat/completions")
-MODELE = os.environ.get("LLM_MODELE", "llama-3.1-8b-instant")
+MODELE = os.environ.get("LLM_MODELE", "openai/gpt-oss-20b")
 # Modèles essayés dans l'ordre si le modèle principal est retiré ou non autorisé pour la clé (erreur model_not_found).
-SECOURS = [m.strip() for m in os.environ.get("LLM_MODELES_SECOURS", "llama-3.3-70b-versatile").split(",") if m.strip()]
+SECOURS = [m.strip() for m in os.environ.get("LLM_MODELES_SECOURS", "openai/gpt-oss-120b,llama-3.1-8b-instant").split(",") if m.strip()]
 DELAI_S = float(os.environ.get("LLM_DELAI_S", "8"))
 # Tarifs indicatifs en USD par million de jetons (paramétrables, à vérifier chez le fournisseur).
 PRIX_ENTREE = float(os.environ.get("LLM_PRIX_ENTREE_USD_M", "0.05"))
@@ -81,7 +81,11 @@ def rediger_resume(texte_masque: str, autoriser_llm: bool = True) -> Redaction:
 
 def _appeler(cle: str, modele: str, messages: list, texte_masque: str) -> tuple[Redaction | None, str | None, bool]:
     """Un appel au fournisseur. Renvoie (rédaction, erreur, modèle_absent)."""
-    corps = json.dumps({"model": modele, "messages": messages, "temperature": 0, "max_tokens": 120}).encode()
+    parametres = {"model": modele, "messages": messages, "temperature": 0, "max_tokens": 120}
+    if est_modele_a_raisonnement(modele):
+        # Raisonnement court et non renvoyé ; marge de jetons pour que le raisonnement ne vide pas la réponse.
+        parametres.update({"reasoning_effort": "low", "include_reasoning": False, "max_tokens": 700})
+    corps = json.dumps(parametres).encode()
     requete = urllib.request.Request(
         URL,
         data=corps,
@@ -106,6 +110,11 @@ def _appeler(cle: str, modele: str, messages: list, texte_masque: str) -> tuple[
         return None, f"HTTP {exc.code}" + (f" : {detail}" if detail else ""), absent
     except (urllib.error.URLError, TimeoutError, KeyError, ValueError) as exc:
         return None, type(exc).__name__, False
+
+def est_modele_a_raisonnement(modele: str) -> bool:
+    """Modèles qui « réfléchissent » avant de répondre (paramètres spécifiques)."""
+    return modele.startswith("openai/gpt-oss")
+
 
 def _cle() -> str:
     """Clé du fournisseur : LLM_API_KEY (tout fournisseur compatible OpenAI) ou GROQ_API_KEY."""

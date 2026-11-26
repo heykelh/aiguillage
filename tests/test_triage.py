@@ -114,3 +114,30 @@ def test_bascule_sur_le_modele_de_secours(monkeypatch, tmp_path):
     assert appels == [llm.MODELE, llm.SECOURS[0]]
     assert r["resume"]["source"] == "llm"
     assert r["versions"]["modele"] == llm.SECOURS[0]
+
+
+def test_parametres_modele_a_raisonnement(monkeypatch, tmp_path):
+    import io
+    import json as _json
+
+    monkeypatch.setattr("aiguillage.audit.CHEMIN", tmp_path / "audit.jsonl")
+    monkeypatch.setenv("GROQ_API_KEY", "cle-de-test")
+    envoyes = []
+
+    class Reponse(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def fournisseur(requete, timeout=None):
+        envoyes.append(_json.loads(requete.data))
+        contenu = {"choices": [{"message": {"content": "Imprimante hors ligne.", "reasoning": "pensée interne"}}]}
+        return Reponse(_json.dumps(contenu).encode())
+
+    monkeypatch.setattr("urllib.request.urlopen", fournisseur)
+    monkeypatch.setattr(llm, "MODELE", "openai/gpt-oss-20b")
+    r = trier("Mon imprimante est hors ligne")
+    assert envoyes[0]["reasoning_effort"] == "low" and envoyes[0]["include_reasoning"] is False
+    assert r["resume"]["source"] == "llm" and "pensée" not in r["resume"]["texte"]
