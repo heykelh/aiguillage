@@ -59,7 +59,7 @@ def resume_deterministe(texte_masque: str) -> str:
 
 def rediger_resume(texte_masque: str, autoriser_llm: bool = True) -> Redaction:
     """Rédige un résumé du ticket déjà masqué. Ne reçoit JAMAIS de texte brut."""
-    cle = os.environ.get("GROQ_API_KEY", "").strip()
+    cle = _cle()
     if not cle:
         return Redaction(resume_deterministe(texte_masque), "deterministe", "aucun", 0, 0, 0.0, erreur="cle_absente")
     if not autoriser_llm:
@@ -85,13 +85,7 @@ def _appeler(cle: str, modele: str, messages: list, texte_masque: str) -> tuple[
     requete = urllib.request.Request(
         URL,
         data=corps,
-        headers={
-            "Authorization": f"Bearer {cle}",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            # L'identifiant par défaut « Python-urllib » est bloqué par certains pare-feu applicatifs (erreur 403).
-            "User-Agent": "aiguillage/1.0 (+https://github.com/heykelh/aiguillage)",
-        },
+        headers=_entetes(cle),
     )
     try:
         with urllib.request.urlopen(requete, timeout=DELAI_S) as reponse:
@@ -113,10 +107,45 @@ def _appeler(cle: str, modele: str, messages: list, texte_masque: str) -> tuple[
     except (urllib.error.URLError, TimeoutError, KeyError, ValueError) as exc:
         return None, type(exc).__name__, False
 
+def _cle() -> str:
+    """Clé du fournisseur : LLM_API_KEY (tout fournisseur compatible OpenAI) ou GROQ_API_KEY."""
+    return (os.environ.get("LLM_API_KEY") or os.environ.get("GROQ_API_KEY") or "").strip()
+
+
+def _entetes(cle: str) -> dict:
+    return {
+        "Authorization": f"Bearer {cle}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        # L'identifiant par défaut « Python-urllib » est bloqué par certains pare-feu applicatifs (erreur 403).
+        "User-Agent": "aiguillage/1.0 (+https://github.com/heykelh/aiguillage)",
+    }
+
+
+def lister_modeles() -> dict:
+    """Diagnostic : demande au fournisseur la liste des modèles accessibles avec la clé (la clé n'est jamais renvoyée)."""
+    cle = _cle()
+    if not cle:
+        return {"ok": False, "erreur": "cle_absente"}
+    url = URL.rsplit("/chat/completions", 1)[0] + "/models"
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=_entetes(cle)), timeout=DELAI_S) as reponse:
+            donnees = json.load(reponse)
+        return {"ok": True, "modeles": sorted(m.get("id", "?") for m in donnees.get("data", []))}
+    except urllib.error.HTTPError as exc:
+        try:
+            detail = exc.read().decode("utf-8", "ignore")[:200]
+        except Exception:  # noqa: BLE001
+            detail = ""
+        return {"ok": False, "erreur": f"HTTP {exc.code}", "detail": detail}
+    except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+        return {"ok": False, "erreur": type(exc).__name__}
+
+
 def etat() -> dict:
     """État de la configuration LLM, sans jamais exposer la clé."""
     return {
-        "cle_configuree": bool(os.environ.get("GROQ_API_KEY", "").strip()),
+        "cle_configuree": bool(_cle()),
         "modele": MODELE,
         "secours": SECOURS,
         "fournisseur": URL.split("/")[2],

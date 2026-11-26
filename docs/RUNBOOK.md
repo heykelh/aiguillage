@@ -7,7 +7,7 @@ Une fonction Python sans dépendance (`core/aiguillage`) exposée par une API (`
 
 | Symptôme | Diagnostic | Action |
 |---|---|---|
-| Le résumé est toujours « déterministe » | `GROQ_API_KEY` absente, ou fournisseur en erreur (champ `resume.erreur`) | Vérifier la variable d'environnement et l'état du fournisseur. Le service reste utilisable. |
+| Le résumé est toujours « déterministe » | Lire `resume.erreur`, puis ouvrir `/api/triage?diagnostic` : clé lue ou non, modèles accessibles avec la clé | Clé absente : `LLM_API_KEY` ou `GROQ_API_KEY`. Modèle refusé : choisir un identifiant de la liste dans `LLM_MODELE`. Le service reste utilisable en mode dégradé. |
 | Beaucoup de tickets « À qualifier » | Vocabulaire nouveau, ou fiches de procédure absentes pour ce sujet | Ajouter ou enrichir une fiche dans `data/fiches/`, ajouter des cas au jeu de référence, relancer l'évaluation |
 | Une priorité est jugée fausse par les agents | Lire `priorite.justification` dans la réponse | Ajouter le cas au jeu de référence, ajuster les listes de `regles.py`, vérifier que la CI reste verte |
 | Alerte « suspect » sur un ticket légitime | Lire `securite.motifs` | Ajouter le cas aux tests `LEGITIMES` de `tests/test_injection.py`, affiner le motif |

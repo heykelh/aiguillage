@@ -35,4 +35,7 @@ class handler(BaseHTTPRequestHandler):  # noqa: N801 (nom imposé par Vercel)
         self._repondre(200, trier(texte[:TAILLE_MAX]))
 
     def do_GET(self) -> None:  # noqa: N802
-        self._repondre(200, {"service": "aiguillage", "usage": "POST {\"ticket\": \"...\"}", "llm": llm.etat()})
+        corps = {"service": "aiguillage", "usage": "POST {\"ticket\": \"...\"}", "llm": llm.etat()}
+        if "diagnostic" in (self.path or ""):
+            corps["modeles_accessibles"] = llm.lister_modeles()
+        self._repondre(200, corps)
